@@ -1,6 +1,11 @@
 # Tai64
 
-TODO: Write a gem description
+Work withTAI64 timestamps:
+
+  http://cr.yp.to/libtai/tai64.html
+
+TAI64 is amazing. You should be using it for your logs.
+
 
 ## Installation
 
@@ -16,9 +21,13 @@ Or install it yourself as:
 
     $ gem install tai64
 
+
 ## Usage
 
-TODO: Write usage instructions here
+    require 'tai64'
+    t = Tai64.parse '@400000005083208a00ffffff'
+    puts t.to_time.to_s # => "2012-10-20 22:06:56 UTC"
+
 
 ## Contributing
 
