@@ -8,20 +8,79 @@ module Tai64
     Label.new str
   end
 
+  module Fudge
+    def self.included into
+      into.class_eval do
+	attr_accessor :leap_second_fudge
+	private :leap_second_fudge=, :leap_second_fudge
+
+	attr_accessor :nano_second_fudge
+	private :nano_second_fudge=
+
+	def leap_second_fudge
+	  @leap_second_fudge ||= 10
+	end
+
+	def nano_second_fudge
+	  @nano_second_fudge ||= 500
+	end
+      end
+    end
+  end
+
+  class Time
+    include Fudge
+
+    attr_accessor :time
+    private :time=, :time
+
+    def initialize time
+      self.time = time
+    end
+
+    def utc_second
+      time.to_i
+    end
+
+    def tai_second
+      utc_second + 10
+    end
+
+    def utc_nanosecond
+      time.to_f - time.to_i
+    end
+
+    def tai_nanosecond
+      utc_nanosecond + nano_second_fudge
+    end
+
+    # Warning, this will probably gain inappropriate accuracy - Ruby does not
+    # support the same level of timing accuracy as TAI64N and TA64NA can
+    # provide.
+    def to_label
+      s = '%016x%08x'
+      sec = tai_second
+      ts = if sec >= 0
+        sec + EPOCH
+      else
+        EPOCH - sec
+      end
+      Label.new s % [ ts, tai_nanosecond ]
+    end
+
+    def to_s
+      time.to_s
+    end
+  end
+
   class Label
+    include Fudge
+
     attr_accessor :str
     private :str=, :str
 
-    attr_accessor :leap_second_fudge
-    private :leap_second_fudge=, :leap_second_fudge
-
-    attr_accessor :nano_second_fudge
-    private :nano_second_fudge=, :nano_second_fudge
-
-    def initialize str, leap_second_fudge = 10, nano_second_fudge = 500
+    def initialize str
       self.str = str.gsub /^@/, ''
-      self.leap_second_fudge = leap_second_fudge
-      self.nano_second_fudge = nano_second_fudge
     end
 
     def to_s
@@ -31,9 +90,9 @@ module Tai64
     def tai_second
       s = str.scan(/^\@?([0-9abcdef]{16})/i)[0][0].to_i(16)
       if s.between? 0, EPOCH - 1
-        tai_second = EPOCH - s
+        return EPOCH - s
       elsif s.between? EPOCH, MAXIMUM
-        tai_second = s - EPOCH
+        return s - EPOCH
       else
         raise "I don't know how to deal with s=#{s}"
       end
@@ -97,8 +156,8 @@ module Tai64
     # Warning, this will probably lose accuracy - Ruby does not support the
     # same level of timing accuracy as TAI64N and TA64NA can provide.
     def to_time
-      t = Time.at utc_reference
-      t.utc
+      t = ::Time.at utc_reference
+      Time.new t.utc
     end
   end
 end

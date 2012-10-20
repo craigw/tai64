@@ -25,8 +25,12 @@ Or install it yourself as:
 ## Usage
 
     require 'tai64'
-    t = Tai64.parse '@400000005083208a00ffffff'
-    puts t.to_time.to_s # => "2012-10-20 22:06:56 UTC"
+
+    l = Tai64.parse '@400000005083208a00ffffff'
+    l.to_time.to_s # => "2012-10-20 22:06:56 UTC"
+
+    t = Tai64::Time.new Time.at(1350770816)
+    t.to_label.to_s # => "@400000005083208a000001f4"
 
 
 ## Contributing
