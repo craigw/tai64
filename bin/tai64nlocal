@@ -1,0 +1,14 @@
+#! /usr/bin/env ruby
+
+require 'tai64'
+require 'time'
+
+$stdin.each_line do |l|
+  parts = l.split /\s+/, 2
+  begin
+    t = Tai64.parse parts[0]
+    puts [ t.to_time.getlocal.iso8601, parts[1] ].join ' '
+  rescue
+    puts parts.join ' '
+  end
+end
