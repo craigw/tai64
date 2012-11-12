@@ -1,3 +1,4 @@
+require "time"
 require "tai64/version"
 
 module Tai64
@@ -68,9 +69,10 @@ module Tai64
       Label.new s % [ ts, tai_nanosecond ]
     end
 
-    def to_s
-      time.to_s
+    def iso8601
+      time.iso8601
     end
+    alias_method :to_s, :iso8601
   end
 
   class Label
