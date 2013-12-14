@@ -6,8 +6,10 @@ require 'time'
 $stdin.each_line do |l|
   parts = l.split /\s+/, 2
   begin
-    t = Tai64.parse parts[0]
-    puts [ t.to_time.to_s, parts[1] ].join ' '
+    label = Tai64.parse parts[0]
+    time = label.to_time
+    ts = time.iso8601 10
+    puts [ ts, parts[1] ].join ' '
   rescue
     puts parts.join ' '
   end
